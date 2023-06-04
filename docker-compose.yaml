@@ -4,8 +4,14 @@ services:
     container_name: mysqlcontainer
     restart: unless-stopped
     volumes:
+      - ./database/init_db.sql:/docker-entrypoint-initdb.d/0_init_db.sql
+      - ./database/init_tables.sql:/docker-entrypoint-initdb.d/1_init_tables.sql
+      - ./database/init_populate.sql:/docker-entrypoint-initdb.d/2_init_populate.sql
       - ./database/mysql:/var/lib/mysql
     ports:
       - 3306:3306
     environment:
+      MYSQL_DATABASE: maindb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: letmein
       MYSQL_ROOT_PASSWORD: letmein
