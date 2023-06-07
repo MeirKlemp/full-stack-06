@@ -12,8 +12,8 @@ const isUserVerified = () => {
 };
 
 // Expecting to get object of [userId, title, body]
-const createPostSchema = Joi.object({
-  userId: Joi.string().required(),
+const postSchema = Joi.object({
+  userId: Joi.number().integer().min(1).required(),
   title: Joi.string().min(1).required(),
   body: Joi.string().min(1).required(),
 });
@@ -44,6 +44,7 @@ const handleDatabaseError = (res) => {
 
 // Function to handle bad request errors
 const handleBadRequest = (res, message) => {
+  console.log(message);
   res
     .status(HttpStatus.BAD_REQUEST.code)
     .send(
@@ -78,8 +79,7 @@ export const getPosts = (req, res) => {
 
   database.query(QUERY.SELECT_POSTS, (error, results) => {
     if (error) {
-      // Handle the database error
-      console.error("Error connecting to the database: ", error);
+      console.error("Error getting posts:", error.message);
       return handleDatabaseError(res);
     }
 
@@ -116,7 +116,7 @@ export const createPost = (req, res) => {
   }
 
   // Validate the request body against the defined schema
-  const { error, value } = createPostSchema.validate(req.body);
+  const { error, value } = postSchema.validate(req.body);
 
   if (error) {
     return handleBadRequest(res, error.details[0].message);
@@ -124,11 +124,20 @@ export const createPost = (req, res) => {
 
   database.query(QUERY.CREATE_POST, Object.values(value), (error, results) => {
     if (error) {
-      console.log(error.message);
+      console.error("Error creating post:", error.message);
       return handleDatabaseError(res);
     }
 
-    const post = results[0][0];
+    const postId = results.insertId;
+    const { userId, title, body } = req.body;
+
+    const post = {
+      id: postId,
+      userId,
+      title,
+      body,
+    };
+
     res
       .status(HttpStatus.CREATED.code)
       .send(
@@ -151,7 +160,7 @@ export const getPost = (req, res) => {
 
   database.query(QUERY.SELECT_POST, [req.params.id], (error, results) => {
     if (error) {
-      console.error("Error connecting to the database:", error);
+      console.error("Error getting post:", error.message);
       return handleDatabaseError(res);
     }
 
@@ -187,6 +196,7 @@ export const updatePost = (req, res) => {
 
   database.query(QUERY.SELECT_POST, [req.params.id], (error, results) => {
     if (error) {
+      console.error("Error getting post:", error.message);
       return handleDatabaseError(res, error);
     }
 
@@ -198,9 +208,10 @@ export const updatePost = (req, res) => {
 
     database.query(
       QUERY.UPDATE_POST,
-      [...Object.values(req.body), req.params.id],
+      [req.body.title, req.body.body, req.params.id],
       (error) => {
         if (error) {
+          console.error("Error updating post:", error.message);
           return handleDatabaseError(res, error);
         }
 
@@ -228,6 +239,7 @@ export const deletePost = (req, res) => {
 
   database.query(QUERY.DELETE_POST, [req.params.id], (error, results) => {
     if (error) {
+      console.error("Error deleting post:", error.message);
       return handleDatabaseError(res, error);
     }
 
