@@ -4,6 +4,12 @@ import database from "../config/mysql.config.js";
 import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/post.query.js";
+import {
+  handleUnauthorized,
+  handleDatabaseError,
+  handleBadRequest,
+  handleNotFound,
+} from "../util/handles.js";
 
 const isUserVerified = () => {
   // Return true for now, replace with actual verification logic later
@@ -17,57 +23,6 @@ const postSchema = Joi.object({
   title: Joi.string().min(1).required(),
   body: Joi.string().min(1).required(),
 });
-
-const handleUnauthorized = (res) => {
-  res
-    .status(HttpStatus.UNAUTHORIZED.code)
-    .send(
-      new Response(
-        HttpStatus.UNAUTHORIZED.code,
-        HttpStatus.UNAUTHORIZED.status,
-        "Unauthorized"
-      )
-    );
-};
-
-const handleDatabaseError = (res) => {
-  res
-    .status(HttpStatus.INTERNAL_SERVER_ERROR.code)
-    .send(
-      new Response(
-        HttpStatus.INTERNAL_SERVER_ERROR.code,
-        HttpStatus.INTERNAL_SERVER_ERROR.status,
-        "There were issues connecting to the database"
-      )
-    );
-};
-
-// Function to handle bad request errors
-const handleBadRequest = (res, message) => {
-  console.log(message);
-  res
-    .status(HttpStatus.BAD_REQUEST.code)
-    .send(
-      new Response(
-        HttpStatus.BAD_REQUEST.code,
-        HttpStatus.BAD_REQUEST.status,
-        message
-      )
-    );
-};
-
-const handleNotFound = (res, message) => {
-  console.log(message);
-  res
-    .status(HttpStatus.NOT_FOUND.code)
-    .send(
-      new Response(
-        HttpStatus.NOT_FOUND.code,
-        HttpStatus.NOT_FOUND.status,
-        message
-      )
-    );
-};
 
 export const getPosts = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching posts...`);
