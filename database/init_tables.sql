@@ -3,6 +3,11 @@ CREATE TABLE `Passwords`(
     `userId` BIGINT UNSIGNED NOT NULL,
     `password` VARCHAR(255) NOT NULL
 );
+CREATE TABLE `ApiKeys`(
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `userId` BIGINT UNSIGNED NOT NULL,
+    `apiKey` VARCHAR(255) NOT NULL
+);
 CREATE TABLE `Users`(
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
@@ -53,6 +58,8 @@ ALTER TABLE
     `Posts` ADD CONSTRAINT `posts_userid_foreign` FOREIGN KEY(`userId`) REFERENCES `Users`(`id`);
 ALTER TABLE
     `Passwords` ADD CONSTRAINT `passwords_userid_foreign` FOREIGN KEY(`userId`) REFERENCES `Users`(`id`);
+ALTER TABLE
+    `ApiKeys` ADD CONSTRAINT `apikeys_userid_foreign` FOREIGN KEY(`userId`) REFERENCES `Users`(`id`);
 ALTER TABLE
     `Photos` ADD CONSTRAINT `photos_albumid_foreign` FOREIGN KEY(`albumId`) REFERENCES `Albums`(`id`);
 ALTER TABLE
