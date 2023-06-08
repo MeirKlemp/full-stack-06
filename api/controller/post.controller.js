@@ -6,7 +6,7 @@ import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/post.query.js";
 import {
   handleUnauthorized,
-  handleDatabaseError,
+  handleInternalError,
   handleBadRequest,
   handleNotFound,
 } from "../util/handles.js";
@@ -19,7 +19,7 @@ const isUserVerified = () => {
 
 // Expecting to get object of [userId, title, body]
 const postSchema = Joi.object({
-  userId: Joi.number().integer().min(1).required(),
+  userId: Joi.number().integer().min(0).required(),
   title: Joi.string().min(1).required(),
   body: Joi.string().min(1).required(),
 });
@@ -35,7 +35,7 @@ export const getPosts = (req, res) => {
   database.query(QUERY.SELECT_POSTS, (error, results) => {
     if (error) {
       console.error("Error getting posts:", error.message);
-      return handleDatabaseError(res);
+      return handleInternalError(res);
     }
 
     if (!results) {
@@ -80,7 +80,7 @@ export const createPost = (req, res) => {
   database.query(QUERY.CREATE_POST, Object.values(value), (error, results) => {
     if (error) {
       console.error("Error creating post:", error.message);
-      return handleDatabaseError(res);
+      return handleInternalError(res);
     }
 
     const postId = results.insertId;
@@ -116,7 +116,7 @@ export const getPost = (req, res) => {
   database.query(QUERY.SELECT_POST, [req.params.id], (error, results) => {
     if (error) {
       console.error("Error getting post:", error.message);
-      return handleDatabaseError(res);
+      return handleInternalError(res);
     }
 
     if (!results[0]) {
@@ -152,7 +152,7 @@ export const updatePost = (req, res) => {
   database.query(QUERY.SELECT_POST, [req.params.id], (error, results) => {
     if (error) {
       console.error("Error getting post:", error.message);
-      return handleDatabaseError(res, error);
+      return handleInternalError(res, error);
     }
 
     if (!results[0]) {
@@ -163,12 +163,14 @@ export const updatePost = (req, res) => {
 
     database.query(
       QUERY.UPDATE_POST,
-      [req.body.title, req.body.body, req.params.id],
-      (error) => {
+      [req.body.title, req.body.body, req.params.id, req.body.userId],
+      (error, results) => {
         if (error) {
           console.error("Error updating post:", error.message);
-          return handleDatabaseError(res, error);
+          return handleInternalError(res, error);
         }
+
+        console.log(results);
 
         res
           .status(HttpStatus.OK.code)
@@ -192,10 +194,10 @@ export const deletePost = (req, res) => {
     return handleUnauthorized(res);
   }
 
-  database.query(QUERY.DELETE_POST, [req.params.id], (error, results) => {
+  database.query(QUERY.DELETE_POST, [req.params.id, req.body.userId], (error, results) => {
     if (error) {
       console.error("Error deleting post:", error.message);
-      return handleDatabaseError(res, error);
+      return handleInternalError(res, error);
     }
 
     if (results.affectedRows === 0) {

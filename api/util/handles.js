@@ -1,3 +1,7 @@
+import HttpStatus from "./http-status.js";
+import Response from "./response.js";
+
+
 export const handleUnauthorized = (res) => {
   res
     .status(HttpStatus.UNAUTHORIZED.code)
@@ -10,14 +14,14 @@ export const handleUnauthorized = (res) => {
     );
 };
 
-export const handleDatabaseError = (res) => {
+export const handleInternalError = (res) => {
   res
     .status(HttpStatus.INTERNAL_SERVER_ERROR.code)
     .send(
       new Response(
         HttpStatus.INTERNAL_SERVER_ERROR.code,
         HttpStatus.INTERNAL_SERVER_ERROR.status,
-        "There were issues connecting to the database"
+        "There was some internal error"
       )
     );
 };
