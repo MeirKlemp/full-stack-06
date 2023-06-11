@@ -10,6 +10,8 @@ app.use(express.json());
 
 app.use("/posts", postRoutes);
 
+app.use("/comments", commentsRoutes);
+
 app.get("/", (req, res) =>
   database.query("SELECT * FROM Passwords", function (err, results) {
     if (err) {
