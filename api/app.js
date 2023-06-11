@@ -3,6 +3,7 @@ import Response from "./util/response.js";
 import HttpStatus from "./util/http-status.js";
 import database from "./config/mysql.config.js";
 import postRoutes from "./route/post.route.js";
+import commentRoutes from "./route/comments.route.js"
 
 const PORT = process.env.PORT || 2999;
 const app = express();
@@ -10,7 +11,7 @@ app.use(express.json());
 
 app.use("/posts", postRoutes);
 
-app.use("/comments", commentsRoutes);
+app.use("/comments", commentRoutes);
 
 app.get("/", (req, res) =>
   database.query("SELECT * FROM Passwords", function (err, results) {
