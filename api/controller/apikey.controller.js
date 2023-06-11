@@ -4,8 +4,9 @@ import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/apikey.query.js";
 import {
-  handleNotFound,
+  handleBadRequest,
   handleUnauthorized,
+  handleNotFound,
   handleInternalError,
 } from "../util/handles.js";
 
