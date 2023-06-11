@@ -3,6 +3,12 @@ import database from "../config/mysql.config.js";
 import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/apikey.query.js";
+import {
+  handleBadRequest,
+  handleUnauthorized,
+  handleNotFound,
+  handleInternalError,
+} from "../util/handles.js";
 
 const loginScheme = Joi.object({
   username: Joi.string().min(1).required(),
@@ -12,19 +18,16 @@ const loginScheme = Joi.object({
 export const authenticate = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   if (!authHeader || !authHeader.toLowerCase().startsWith("apikey ")) {
-    // TODO: Handle error.
-    return res.status(401).send("Not logged in");
+    return handleUnauthorized(res);
   }
   const apikey = authHeader.split(" ")[1];
   database.query(QUERY.SELECT_APIKEY, [apikey], (error, results) => {
     if (error) {
-      //TODO: Handle error.
-      throw error;
+      return handleInternalError(res);
     }
 
     if (!results.length) {
-      // TODO: Handle error.
-      return res.status(401).send("Not logged in");
+      return handleUnauthorized(res);
     }
 
     res.locals.userId = results[0].userId;
@@ -36,8 +39,7 @@ export const authenticate = (req, res, next) => {
 export const createApiKey = (req, res) => {
   const { error, value } = loginScheme.validate(req.body);
   if (error) {
-    // TODO: Handle error.
-    throw error;
+    return handleBadRequest(res, error.details[0].message);
   }
 
   database.query(
@@ -45,27 +47,23 @@ export const createApiKey = (req, res) => {
     [value.username, value.password],
     (error, results) => {
       if (error) {
-        // TODO: Handle error.
-        throw error;
+        return handleInternalError(res);
       }
 
       if (!results.length) {
-        // TODO: Handle failed login.
-        return res.status(404).send("Wrong username or password!");
+        return handleNotFound(res, "Wrong username or password!");
       }
 
       // Create a new apikey.
       const { userId } = results[0];
       database.query(QUERY.CREATE_APIKEY, [userId], (error, results) => {
         if (error) {
-          //TODO: Handle error.
-          throw error;
+          return handleInternalError(res);
         }
 
         database.query(QUERY.SELECT_APIKEYS, [userId], (error, results) => {
           if (error) {
-            //TODO: Handle error.
-            throw error;
+            return handleInternalError(res);
           }
 
           // Send the latest api key.
@@ -90,8 +88,7 @@ export const deleteApiKeys = (req, res) => {
   const { userId } = res.locals;
   database.query(QUERY.DELETE_APIKEYS, [userId], (error, results) => {
     if (error) {
-      // TODO: Handle error.
-      throw error;
+      return handleInternalError(res);
     }
 
     res
@@ -110,13 +107,11 @@ export const deleteApiKey = (req, res) => {
   const { apiKey } = req.params;
   database.query(QUERY.DELETE_APIKEY, [apiKey], (error, results) => {
     if (error) {
-      // TODO: Handle error.
-      throw error;
+      return handleInternalError(res);
     }
 
     if (!results.affectedRows) {
-      // TODO: Handle not found.
-      return res.status(404).send("ApiKey not found");
+      return handleNotFound(res, "ApiKey not found");
     }
     res
       .status(HttpStatus.OK.code)

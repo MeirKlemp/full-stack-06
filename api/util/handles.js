@@ -1,10 +1,10 @@
 import HttpStatus from "./http-status.js";
 import Response from "./response.js";
 
-
 export const handleUnauthorized = (res) => {
   res
     .status(HttpStatus.UNAUTHORIZED.code)
+    .append("WWW-Authenticate", "ApiKey")
     .send(
       new Response(
         HttpStatus.UNAUTHORIZED.code,
