@@ -170,8 +170,10 @@ export const updatePost = (req, res) => {
           return handleInternalError(res, error);
         }
 
-        console.log(results);
-
+        if (results.affectedRows === 0) {
+          return handleNotFound(res, `Post by id ${req.params.id} was not found`); // TODO change it to unauthorized later maybe
+        }
+    
         res
           .status(HttpStatus.OK.code)
           .send(
