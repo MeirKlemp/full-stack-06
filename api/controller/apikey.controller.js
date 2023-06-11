@@ -76,7 +76,7 @@ export const createApiKey = (req, res) => {
               new Response(
                 HttpStatus.CREATED.code,
                 HttpStatus.CREATED.status,
-                `ApiKey created`,
+                "ApiKey created",
                 { apiKey, created_at }
               )
             );
@@ -84,4 +84,44 @@ export const createApiKey = (req, res) => {
       });
     }
   );
+};
+
+export const deleteApiKeys = (req, res) => {
+  const { userId } = res.locals;
+  database.query(QUERY.DELETE_APIKEYS, [userId], (error, results) => {
+    if (error) {
+      // TODO: Handle error.
+      throw error;
+    }
+
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "All ApiKeys deleted"
+        )
+      );
+  });
+};
+
+export const deleteApiKey = (req, res) => {
+  const { apiKey } = req.params;
+  database.query(QUERY.DELETE_APIKEY, [apiKey], (error, results) => {
+    if (error) {
+      // TODO: Handle error.
+      throw error;
+    }
+
+    if (!results.affectedRows) {
+      // TODO: Handle not found.
+      return res.status(404).send("ApiKey not found");
+    }
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(HttpStatus.OK.code, HttpStatus.OK.status, "ApiKey deleted")
+      );
+  });
 };
