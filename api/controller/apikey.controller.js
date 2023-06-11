@@ -9,6 +9,30 @@ const loginScheme = Joi.object({
   password: Joi.string().min(1).required(),
 });
 
+export const authenticate = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader || !authHeader.toLowerCase().startsWith("apikey ")) {
+    // TODO: Handle error.
+    return res.status(401).send("Not logged in");
+  }
+  const apikey = authHeader.split(" ")[1];
+  database.query(QUERY.SELECT_APIKEY, [apikey], (error, results) => {
+    if (error) {
+      //TODO: Handle error.
+      throw error;
+    }
+
+    if (!results.length) {
+      // TODO: Handle error.
+      return res.status(401).send("Not logged in");
+    }
+
+    res.locals.userId = results[0].userId;
+    res.locals.apiKey = results[0].apiKey;
+    next();
+  });
+};
+
 export const createApiKey = (req, res) => {
   const { error, value } = loginScheme.validate(req.body);
   if (error) {
