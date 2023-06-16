@@ -10,6 +10,7 @@ import {
   handleBadRequest,
   handleNotFound,
 } from "../util/handles.js";
+import generateQuery from "../query/queryUtils.js";
 
 const isUserVerified = () => {
   // Return true for now, replace with actual verification logic later
@@ -32,7 +33,24 @@ export const getComments = (req, res) => {
     return handleUnauthorized(res);
   }
 
-  database.query(QUERY.SELECT_COMMENTS, (error, results) => {
+  const postId = req.query.postId;
+  const userId = req.query.userId;
+  const limit = req.query.limit;
+  const page = req.query.page;
+
+  const conditions = [];
+
+  if (postId) {
+    conditions.push(`postId=${postId}`);
+  }
+
+  if (userId) {
+    conditions.push(`userId=${userId}`);
+  }
+
+  const query = generateQuery(QUERY.SELECT_COMMENTS, conditions, limit, page);
+
+  database.query(query, (error, results) => {
     if (error) {
       console.error("Error getting comments:", error.message);
       return handleInternalError(res);
