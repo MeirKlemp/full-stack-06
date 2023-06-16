@@ -16,8 +16,10 @@ const loginScheme = Joi.object({
 });
 
 export const authenticate = (req, res, next) => {
+  console.log("User try to authenticate");
   const authHeader = req.headers["authorization"];
   if (!authHeader || !authHeader.toLowerCase().startsWith("apikey ")) {
+    console.log("No proper authorization header or bad value");
     return handleUnauthorized(res);
   }
   const apikey = authHeader.split(" ")[1];
@@ -27,11 +29,13 @@ export const authenticate = (req, res, next) => {
     }
 
     if (!results.length) {
+      console.log("User was not authorized");
       return handleUnauthorized(res);
     }
 
     res.locals.userId = results[0].userId;
     res.locals.apiKey = results[0].apiKey;
+    console.log("Authorized user with id: " + results[0].userId);
     next();
   });
 };
@@ -56,11 +60,14 @@ export const createApiKey = (req, res) => {
 
       // Create a new apikey.
       const { userId } = results[0];
+      console.log("Trying to create API key...");
       database.query(QUERY.CREATE_APIKEY, [userId], (error, results) => {
         if (error) {
+          console.log(error.message);
           return handleInternalError(res);
         }
 
+        console.log("Trying to return API key...");
         database.query(QUERY.SELECT_APIKEYS, [userId], (error, results) => {
           if (error) {
             return handleInternalError(res);
