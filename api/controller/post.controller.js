@@ -5,32 +5,19 @@ import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/post.query.js";
 import {
-  handleUnauthorized,
   handleInternalError,
   handleBadRequest,
   handleNotFound,
 } from "../util/handles.js";
 
-const isUserVerified = () => {
-  // Return true for now, replace with actual verification logic later
-  // Probably need to get cookie apiKey as parameter
-  return true;
-};
-
 // Expecting to get object of [userId, title, body]
 const postSchema = Joi.object({
-  userId: Joi.number().integer().min(0).required(),
   title: Joi.string().min(1).required(),
   body: Joi.string().min(1).required(),
 });
 
 export const getPosts = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching posts...`);
-
-  // Check if the user is verified
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
 
   database.query(QUERY.SELECT_POSTS, (error, results) => {
     if (error) {
@@ -66,25 +53,26 @@ export const getPosts = (req, res) => {
 export const createPost = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, creating post`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
-
   // Validate the request body against the defined schema
-  const { error, value } = postSchema.validate(req.body);
+  const { error } = postSchema.validate(req.body);
 
   if (error) {
     return handleBadRequest(res, error.details[0].message);
   }
 
-  database.query(QUERY.CREATE_POST, Object.values(value), (error, results) => {
+  const { userId } = res.locals;
+  const { title, body } = req.body;
+
+  database.query(QUERY.CREATE_POST, [userId, title, body], (error, results) => {
     if (error) {
       console.error("Error creating post:", error.message);
       return handleInternalError(res);
     }
 
     const postId = results.insertId;
-    const { userId, title, body } = req.body;
+    const { userId } = res.locals;
+
+    const { title, body } = req.body;
 
     const post = {
       id: postId,
@@ -108,10 +96,6 @@ export const createPost = (req, res) => {
 
 export const getPost = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching post`);
-
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
 
   database.query(QUERY.SELECT_POST, [req.params.id], (error, results) => {
     if (error) {
@@ -140,10 +124,6 @@ export const getPost = (req, res) => {
 export const updatePost = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching post`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
-
   const { error } = postSchema.validate(req.body);
   if (error) {
     return handleBadRequest(res, error.details[0].message);
@@ -161,9 +141,13 @@ export const updatePost = (req, res) => {
 
     console.log(`${req.method} ${req.originalUrl}, updating post`);
 
+    const { id } = req.params;
+    const { userId } = res.locals;
+    const { title, body } = req.body;
+
     database.query(
       QUERY.UPDATE_POST,
-      [req.body.title, req.body.body, req.params.id, req.body.userId],
+      [title, body, id, userId],
       (error, results) => {
         if (error) {
           console.error("Error updating post:", error.message);
@@ -171,9 +155,12 @@ export const updatePost = (req, res) => {
         }
 
         if (results.affectedRows === 0) {
-          return handleNotFound(res, `Post by id ${req.params.id} was not found`); // TODO change it to unauthorized later maybe
+          return handleNotFound(
+            res,
+            `Post by id ${req.params.id} was not found`
+          ); // TODO change it to unauthorized later maybe
         }
-    
+
         res
           .status(HttpStatus.OK.code)
           .send(
@@ -192,29 +179,31 @@ export const updatePost = (req, res) => {
 export const deletePost = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, deleting post`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
+  const { userId } = res.locals;
 
-  database.query(QUERY.DELETE_POST, [req.params.id, req.body.userId], (error, results) => {
-    if (error) {
-      console.error("Error deleting post:", error.message);
-      return handleInternalError(res, error);
+  database.query(
+    QUERY.DELETE_POST,
+    [req.params.id, userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error deleting post:", error.message);
+        return handleInternalError(res, error);
+      }
+
+      if (results.affectedRows === 0) {
+        return handleNotFound(res, `Post by id ${req.params.id} was not found`);
+      }
+
+      res
+        .status(HttpStatus.OK.code)
+        .send(
+          new Response(
+            HttpStatus.OK.code,
+            HttpStatus.OK.status,
+            `Post deleted`,
+            results[0]
+          )
+        );
     }
-
-    if (results.affectedRows === 0) {
-      return handleNotFound(res, `Post by id ${req.params.id} was not found`);
-    }
-
-    res
-      .status(HttpStatus.OK.code)
-      .send(
-        new Response(
-          HttpStatus.OK.code,
-          HttpStatus.OK.status,
-          `Post deleted`,
-          results[0]
-        )
-      );
-  });
+  );
 };
