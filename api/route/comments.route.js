@@ -9,6 +9,8 @@ import {
 
 const commentRoutes = express.Router();
 
+postRoutes.use(authenticate);
+
 commentRoutes.route("/").get(getComments).post(createComment);
 
 commentRoutes

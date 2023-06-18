@@ -20,18 +20,12 @@ const isUserVerified = () => {
 
 // Expecting to get object of [userId, postId, body]
 const commentSchema = Joi.object({
-  userId: Joi.number().integer().min(0).required(),
   postId: Joi.number().integer().min(0).required(),
   body: Joi.string().min(1).required(),
 });
 
 export const getComments = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching comments...`);
-
-  // Check if the user is verified
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
 
   const { postId, userId, limit, page } = req.query;
 
@@ -80,10 +74,6 @@ export const getComments = (req, res) => {
 export const createComment = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, creating comment`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
-
   // Validate the request body against the defined schema
   const { error, value } = commentSchema.validate(req.body);
 
@@ -91,9 +81,12 @@ export const createComment = (req, res) => {
     return handleBadRequest(res, error.details[0].message);
   }
 
+  const { userId } = res.locals;
+  const { postId, body } = req.body;
+
   database.query(
     QUERY.CREATE_COMMENT,
-    Object.values(value),
+    [userId, postId, body],
     (error, results) => {
       if (error) {
         console.error("Error creating comment:", error.message);
@@ -101,7 +94,6 @@ export const createComment = (req, res) => {
       }
 
       const commentId = results.insertId;
-      const { userId, postId, body } = req.body;
 
       const comment = {
         id: commentId,
@@ -126,10 +118,6 @@ export const createComment = (req, res) => {
 
 export const getComment = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching comment`);
-
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
 
   database.query(QUERY.SELECT_COMMENT, [req.params.id], (error, results) => {
     if (error) {
@@ -158,10 +146,6 @@ export const getComment = (req, res) => {
 export const updateComment = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching comment`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
-
   const { error } = commentSchema.validate(req.body);
   if (error) {
     return handleBadRequest(res, error.details[0].message);
@@ -182,9 +166,13 @@ export const updateComment = (req, res) => {
 
     console.log(`${req.method} ${req.originalUrl}, updating comment`);
 
+    const { id } = req.params;
+    const { userId } = res.locals;
+    const { postId, body } = req.body;
+
     database.query(
       QUERY.UPDATE_COMMENT,
-      [req.body.postId, req.body.body, req.params.id, req.body.userId],
+      [postId, body, id, userId],
       (error, results) => {
         if (error) {
           console.error("Error updating comment:", error.message);
@@ -205,7 +193,7 @@ export const updateComment = (req, res) => {
               HttpStatus.OK.code,
               HttpStatus.OK.status,
               `Comment updated`,
-              { id: req.params.id, ...req.body }
+              { id: req.params.id, userId: userId, ...req.body }
             )
           );
       }
@@ -216,13 +204,11 @@ export const updateComment = (req, res) => {
 export const deleteComment = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, deleting comment`);
 
-  if (!isUserVerified()) {
-    return handleUnauthorized(res);
-  }
+  const { userId } = res.locals;
 
   database.query(
     QUERY.DELETE_COMMENT,
-    [req.params.id, req.body.userId],
+    [req.params.id, userId],
     (error, results) => {
       if (error) {
         console.error("Error deleting comment:", error.message);
@@ -234,6 +220,7 @@ export const deleteComment = (req, res) => {
           res,
           `Comment by id ${req.params.id} was not found`
         );
+        // Or unauthorized
       }
 
       res

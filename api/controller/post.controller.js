@@ -83,9 +83,6 @@ export const createPost = (req, res) => {
     }
 
     const postId = results.insertId;
-    const { userId } = res.locals;
-
-    const { title, body } = req.body;
 
     const post = {
       id: postId,
@@ -181,7 +178,7 @@ export const updatePost = (req, res) => {
               HttpStatus.OK.code,
               HttpStatus.OK.status,
               `Post updated`,
-              { id: req.params.id, ...req.body }
+              { id: req.params.id, userId: userId, ...req.body }
             )
           );
       }
@@ -205,6 +202,7 @@ export const deletePost = (req, res) => {
 
       if (results.affectedRows === 0) {
         return handleNotFound(res, `Post by id ${req.params.id} was not found`);
+        // Or unauthorized
       }
 
       res
