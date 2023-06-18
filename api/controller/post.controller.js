@@ -19,14 +19,28 @@ const postSchema = Joi.object({
 export const getPosts = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching posts...`);
 
-  database.query(QUERY.SELECT_POSTS, (error, results) => {
+  const { postId, userId, limit, page } = req.query;
+
+  const conditions = [];
+
+  if (postId) {
+    conditions.push(`postId=${postId}`);
+  }
+
+  if (userId) {
+    conditions.push(`userId=${userId}`);
+  }
+
+  const query = generateQuery(QUERY.SELECT_POSTS, conditions, limit, page);
+
+  database.query(query, (error, results) => {
     if (error) {
       console.error("Error getting posts:", error.message);
       return handleInternalError(res);
     }
 
-    if (!results) {
-      res
+    if (!results || results.length === 0) {
+      return res
         .status(HttpStatus.OK.code)
         .send(
           new Response(
@@ -35,18 +49,17 @@ export const getPosts = (req, res) => {
             "No posts found"
           )
         );
-    } else {
-      res
-        .status(HttpStatus.OK.code)
-        .send(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-            "Posts retrieved",
-            { posts: results }
-          )
-        );
     }
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "Posts retrieved",
+          { posts: results }
+        )
+      );
   });
 };
 
