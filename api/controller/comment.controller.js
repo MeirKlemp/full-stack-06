@@ -33,10 +33,7 @@ export const getComments = (req, res) => {
     return handleUnauthorized(res);
   }
 
-  const postId = req.query.postId;
-  const userId = req.query.userId;
-  const limit = req.query.limit;
-  const page = req.query.page;
+  const { postId, userId, limit, page } = req.query;
 
   const conditions = [];
 
@@ -56,8 +53,8 @@ export const getComments = (req, res) => {
       return handleInternalError(res);
     }
 
-    if (!results) {
-      res
+    if (!results || results.length === 0) {
+      return res
         .status(HttpStatus.OK.code)
         .send(
           new Response(
@@ -66,18 +63,17 @@ export const getComments = (req, res) => {
             "No comments found"
           )
         );
-    } else {
-      res
-        .status(HttpStatus.OK.code)
-        .send(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-            "Comments retrieved",
-            { comments: results }
-          )
-        );
     }
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "Comments retrieved",
+          { comments: results }
+        )
+      );
   });
 };
 
