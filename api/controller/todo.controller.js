@@ -3,7 +3,7 @@ import Joi from "joi";
 import database from "../config/mysql.config.js";
 import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
-import QUERY from "../query/comment.query.js";
+import QUERY from "../query/todo.query.js";
 import {
   handleInternalError,
   handleBadRequest,
@@ -12,31 +12,28 @@ import {
 import generateQuery from "../query/queryUtils.js";
 
 // Expecting to get object of [userId, postId, body]
-const commentSchema = Joi.object({
-  postId: Joi.number().integer().min(0).required(),
-  body: Joi.string().min(1).required(),
+const todoSchema = Joi.object({
+  title: Joi.string().min(1).required(),
+  completed: Joi.number().integer().valid(0, 1).required(),
 });
 
-export const getComments = (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, fetching comments...`);
+export const getTodos = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, fetching todos...`);
 
-  const { postId, userId, limit, page } = req.query;
+  const { completed, limit, page } = req.query;
+  const { userId } = res.locals;
 
   const conditions = [];
 
-  if (postId) {
-    conditions.push(`postId=${postId}`);
+  if (completed) {
+    conditions.push(`completed=${completed}`);
   }
 
-  if (userId) {
-    conditions.push(`userId=${userId}`);
-  }
+  const query = generateQuery(QUERY.SELECT_TODOS, conditions, limit, page);
 
-  const query = generateQuery(QUERY.SELECT_COMMENTS, conditions, limit, page);
-
-  database.query(query, (error, results) => {
+  database.query(query, [userId], (error, results) => {
     if (error) {
-      console.error("Error getting comments:", error.message);
+      console.error("Error getting todos:", error.message);
       return handleInternalError(res);
     }
 
@@ -47,7 +44,7 @@ export const getComments = (req, res) => {
           new Response(
             HttpStatus.OK.code,
             HttpStatus.OK.status,
-            "No comments found"
+            "No todos found"
           )
         );
     }
@@ -57,42 +54,42 @@ export const getComments = (req, res) => {
         new Response(
           HttpStatus.OK.code,
           HttpStatus.OK.status,
-          "Comments retrieved",
-          { comments: results }
+          "Todos retrieved",
+          { todos: results }
         )
       );
   });
 };
 
-export const createComment = (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, creating comment`);
+export const createTodo = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, creating todo`);
 
   // Validate the request body against the defined schema
-  const { error } = commentSchema.validate(req.body);
+  const { error } = todoSchema.validate(req.body);
 
   if (error) {
     return handleBadRequest(res, error.details[0].message);
   }
 
   const { userId } = res.locals;
-  const { postId, body } = req.body;
+  const { title, completed } = req.body;
 
   database.query(
-    QUERY.CREATE_COMMENT,
-    [userId, postId, body],
+    QUERY.CREATE_TODO,
+    [userId, title, completed],
     (error, results) => {
       if (error) {
-        console.error("Error creating comment:", error.message);
+        console.error("Error creating todo:", error.message);
         return handleInternalError(res);
       }
 
-      const commentId = results.insertId;
+      const todoId = results.insertId;
 
-      const comment = {
-        id: commentId,
+      const todo = {
+        id: todoId,
         userId,
-        postId,
-        body,
+        title,
+        completed,
       };
 
       res
@@ -101,25 +98,27 @@ export const createComment = (req, res) => {
           new Response(
             HttpStatus.CREATED.code,
             HttpStatus.CREATED.status,
-            `Comment created`,
-            { comment }
+            `Todo created`,
+            { todo }
           )
         );
     }
   );
 };
 
-export const getComment = (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, fetching comment`);
+export const getTodo = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, fetching todo`);
+  const { userId } = res.locals;
 
-  database.query(QUERY.SELECT_COMMENT, [req.params.id], (error, results) => {
+
+  database.query(QUERY.SELECT_TODO, [req.params.id, userId], (error, results) => {
     if (error) {
-      console.error("Error getting comment:", error.message);
+      console.error("Error getting todo:", error.message);
       return handleInternalError(res);
     }
 
     if (!results[0]) {
-      const message = `Comment by id ${req.params.id} was not found`;
+      const message = `Todo by id ${req.params.id} was not found`;
       return handleNotFound(res, message);
     }
 
@@ -129,53 +128,50 @@ export const getComment = (req, res) => {
         new Response(
           HttpStatus.OK.code,
           HttpStatus.OK.status,
-          `Comment retrieved`,
+          `Todo retrieved`,
           results[0]
         )
       );
   });
 };
 
-export const updateComment = (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, fetching comment`);
+export const updateTodo = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, fetching todo`);
 
-  const { error } = commentSchema.validate(req.body);
+  const { error } = todoSchema.validate(req.body);
   if (error) {
     return handleBadRequest(res, error.details[0].message);
   }
 
-  database.query(QUERY.SELECT_COMMENT, [req.params.id], (error, results) => {
+  database.query(QUERY.SELECT_TODO, [req.params.id], (error, results) => {
     if (error) {
-      console.error("Error getting comment:", error.message);
+      console.error("Error getting todo:", error.message);
       return handleInternalError(res, error);
     }
 
     if (!results[0]) {
-      return handleNotFound(
-        res,
-        `Comment by id ${req.params.id} was not found`
-      );
+      return handleNotFound(res, `Todo by id ${req.params.id} was not found`);
     }
 
-    console.log(`${req.method} ${req.originalUrl}, updating comment`);
+    console.log(`${req.method} ${req.originalUrl}, updating todo`);
 
     const { id } = req.params;
     const { userId } = res.locals;
-    const { postId, body } = req.body;
+    const { title, completed } = req.body;
 
     database.query(
-      QUERY.UPDATE_COMMENT,
-      [postId, body, id, userId],
+      QUERY.UPDATE_TODO,
+      [id, title, completed, userId],
       (error, results) => {
         if (error) {
-          console.error("Error updating comment:", error.message);
+          console.error("Error updating todo:", error.message);
           return handleInternalError(res, error);
         }
 
         if (results.affectedRows === 0) {
           return handleNotFound(
             res,
-            `Comment by id ${req.params.id} was not found`
+            `Todo by id ${req.params.id} was not found`
           ); // TODO change it to unauthorized later maybe
         }
 
@@ -185,7 +181,7 @@ export const updateComment = (req, res) => {
             new Response(
               HttpStatus.OK.code,
               HttpStatus.OK.status,
-              `Comment updated`,
+              `Todo updated`,
               { id: req.params.id, userId: userId, ...req.body }
             )
           );
@@ -194,25 +190,22 @@ export const updateComment = (req, res) => {
   });
 };
 
-export const deleteComment = (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, deleting comment`);
+export const deleteTodo = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, deleting todo`);
 
   const { userId } = res.locals;
 
   database.query(
-    QUERY.DELETE_COMMENT,
+    QUERY.DELETE_TODO,
     [req.params.id, userId],
     (error, results) => {
       if (error) {
-        console.error("Error deleting comment:", error.message);
+        console.error("Error deleting todo:", error.message);
         return handleInternalError(res, error);
       }
 
       if (results.affectedRows === 0) {
-        return handleNotFound(
-          res,
-          `Comment by id ${req.params.id} was not found`
-        );
+        return handleNotFound(res, `Todo by id ${req.params.id} was not found`);
         // Or unauthorized
       }
 
@@ -222,7 +215,7 @@ export const deleteComment = (req, res) => {
           new Response(
             HttpStatus.OK.code,
             HttpStatus.OK.status,
-            `Comment deleted`,
+            `Todo deleted`,
             results[0]
           )
         );
