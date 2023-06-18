@@ -7,9 +7,11 @@ import {
   updateComment,
 } from "../controller/comment.controller.js";
 
+import { authenticate } from "../controller/apikey.controller.js";
+
 const commentRoutes = express.Router();
 
-postRoutes.use(authenticate);
+commentRoutes.use(authenticate);
 
 commentRoutes.route("/").get(getComments).post(createComment);
 
