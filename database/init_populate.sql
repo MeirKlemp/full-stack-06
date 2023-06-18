@@ -28,72 +28,81 @@ VALUES
 
 -- Creating Posts for each user
 INSERT INTO Posts (userId, title, body)
-    SELECT id, 'Post 1' AS title, 'Body of post 1' AS body FROM Users;
+    SELECT id, 'Introduction to SQL' AS title, 'SQL is a powerful language used for managing and manipulating relational databases.' AS body FROM Users;
 INSERT INTO Posts (userId, title, body)
-    SELECT id, 'Post 2' AS title, 'Body of post 2' AS body FROM Users;
+    SELECT id, 'Understanding SQL Joins' AS title, 'SQL joins are fundamental for combining data from multiple tables in a database.' AS body FROM Users;
 INSERT INTO Posts (userId, title, body)
-    SELECT id, 'Post 3' AS title, 'Body of post 3' AS body FROM Users;
+    SELECT id, 'Advanced SQL Techniques' AS title, 'Explore advanced SQL techniques such as subqueries, window functions, and stored procedures.' AS body FROM Users;
 
 -- Creating Comments for each post
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 1' AS body, u.id AS userId
+    SELECT p.id, "Great introduction to SQL! It's an essential skill for working with databases." AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 2' AS body, u.id AS userId
+    SELECT p.id, "Understanding SQL joins is crucial for querying data from multiple tables. Thanks for explaining it!" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 3' AS body, u.id AS userId
+    SELECT p.id, "I'm eager to learn advanced SQL techniques like subqueries and window functions. Any recommendations?" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 4' AS body, u.id AS userId
+    SELECT p.id, "I found your post on SQL joins really helpful. Can you provide examples of different join types?" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 5' AS body, u.id AS userId
+    SELECT p.id, "The advanced SQL techniques you mentioned are quite powerful. I'm excited to explore them in more detail." AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 6' AS body, u.id AS userId
+    SELECT p.id, "Do you have any recommendations for resources to learn advanced SQL techniques? I'm really interested!" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 7' AS body, u.id AS userId
+    SELECT p.id, "I appreciate your post on SQL. It has helped me gain a better understanding of database management." AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 8' AS body, u.id AS userId
+    SELECT p.id, "Thanks for explaining SQL joins. They were a bit confusing for me, but now it's much clearer." AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 9' AS body, u.id AS userId
+    SELECT p.id, "I've been using subqueries in my SQL queries, but I'm still trying to grasp the concept fully. Any tips?" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
+    
 INSERT INTO Comments (postId, body, userId)
-    SELECT p.id, 'Comment 10' AS body, u.id AS userId
+    SELECT p.id, "Your post on advanced SQL techniques inspired me to dive deeper into SQL. Looking forward to your future posts!" AS body, u.id AS userId
     FROM Posts p
     INNER JOIN Users u ON u.id = p.userId;
 
 -- Creating Todos for each user
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 1' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Learn SQL basic syntax' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 2' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Practice SQL queries with sample databases' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 3' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Build a simple CRUD application using SQL and a backend language' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 4' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Explore different types of SQL joins and their use cases' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 5' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Implement user authentication and authorization in a full-stack web application' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 6' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Create a database schema for a complex web application' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 7' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Optimize SQL queries for improved performance' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 8' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Learn a front-end framework (e.g., React, Vue, Angular) to complement SQL skills' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 9' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Master SQL subqueries and their various use cases' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
-    SELECT id, 'Todo 10' AS title, 0 AS completed FROM Users;
+    SELECT id, 'Build a RESTful API using SQL and a backend framework' AS title, 0 AS completed FROM Users;
