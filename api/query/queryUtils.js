@@ -19,3 +19,5 @@ const generateQuery = (baseQuery, conditions = [], limit, page) => {
 };
 
 export default generateQuery;
+
+//TODO Protection against SQL injection

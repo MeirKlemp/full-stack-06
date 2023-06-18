@@ -9,6 +9,8 @@ import {
   handleBadRequest,
   handleNotFound,
 } from "../util/handles.js";
+import generateQuery from "../query/queryUtils.js";
+
 
 // Expecting to get object of [userId, title, body]
 const postSchema = Joi.object({
