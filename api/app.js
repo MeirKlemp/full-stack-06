@@ -3,14 +3,16 @@ import Response from "./util/response.js";
 import HttpStatus from "./util/http-status.js";
 import database from "./config/mysql.config.js";
 import apikeyRoutes from "./route/apikey.route.js";
+import userRoutes from "./route/user.route.js";
 import postRoutes from "./route/post.route.js";
-import commentRoutes from "./route/comments.route.js"
+import commentRoutes from "./route/comments.route.js";
 
 const PORT = process.env.PORT || 2999;
 const app = express();
 app.use(express.json());
 
 app.use("/apikeys", apikeyRoutes);
+app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
 
