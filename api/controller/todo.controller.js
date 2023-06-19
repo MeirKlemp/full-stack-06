@@ -110,84 +110,99 @@ export const getTodo = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching todo`);
   const { userId } = res.locals;
 
+  database.query(
+    QUERY.SELECT_TODO,
+    [req.params.id, userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error getting todo:", error.message);
+        return handleInternalError(res);
+      }
 
-  database.query(QUERY.SELECT_TODO, [req.params.id, userId], (error, results) => {
-    if (error) {
-      console.error("Error getting todo:", error.message);
-      return handleInternalError(res);
+      if (!results[0]) {
+        const message = `Todo by id ${req.params.id} was not found`;
+        return handleNotFound(res, message);
+      }
+
+      res
+        .status(HttpStatus.OK.code)
+        .send(
+          new Response(
+            HttpStatus.OK.code,
+            HttpStatus.OK.status,
+            `Todo retrieved`,
+            results[0]
+          )
+        );
     }
-
-    if (!results[0]) {
-      const message = `Todo by id ${req.params.id} was not found`;
-      return handleNotFound(res, message);
-    }
-
-    res
-      .status(HttpStatus.OK.code)
-      .send(
-        new Response(
-          HttpStatus.OK.code,
-          HttpStatus.OK.status,
-          `Todo retrieved`,
-          results[0]
-        )
-      );
-  });
+  );
 };
 
 export const updateTodo = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, fetching todo`);
+  const { userId } = res.locals;
 
   const { error } = todoSchema.validate(req.body);
   if (error) {
     return handleBadRequest(res, error.details[0].message);
   }
 
-  database.query(QUERY.SELECT_TODO, [req.params.id], (error, results) => {
-    if (error) {
-      console.error("Error getting todo:", error.message);
-      return handleInternalError(res, error);
-    }
+  console.log(req.params.id);
+  console.log(userId);
 
-    if (!results[0]) {
-      return handleNotFound(res, `Todo by id ${req.params.id} was not found`);
-    }
-
-    console.log(`${req.method} ${req.originalUrl}, updating todo`);
-
-    const { id } = req.params;
-    const { userId } = res.locals;
-    const { title, completed } = req.body;
-
-    database.query(
-      QUERY.UPDATE_TODO,
-      [id, title, completed, userId],
-      (error, results) => {
-        if (error) {
-          console.error("Error updating todo:", error.message);
-          return handleInternalError(res, error);
-        }
-
-        if (results.affectedRows === 0) {
-          return handleNotFound(
-            res,
-            `Todo by id ${req.params.id} was not found`
-          ); // TODO change it to unauthorized later maybe
-        }
-
-        res
-          .status(HttpStatus.OK.code)
-          .send(
-            new Response(
-              HttpStatus.OK.code,
-              HttpStatus.OK.status,
-              `Todo updated`,
-              { id: req.params.id, userId: userId, ...req.body }
-            )
-          );
+  database.query(
+    QUERY.SELECT_TODO,
+    [req.params.id, userId],
+    (error, results) => {
+      if (error) {
+        console.error("Error getting todo:", error.message);
+        return handleInternalError(res, error);
       }
-    );
-  });
+
+      console.log(results[0]);
+      console.log(!results[0]);
+
+      if (!results[0]) {
+        return handleNotFound(res, `Todo by id ${req.params.id} was not found`);
+      }
+
+      console.log(`${req.method} ${req.originalUrl}, updating todo`);
+
+      const { id } = req.params;
+      const { title, completed } = req.body;
+      console.log(id, title, completed, userId);
+      database.query(
+        QUERY.UPDATE_TODO,
+        [title, completed, id, userId],
+        (error, results) => {
+          if (error) {
+            console.error("Error updating todo:", error.message);
+            return handleInternalError(res, error);
+          }
+
+          if (results.affectedRows === 0) {
+            console.log("Couldn't update todo");
+            console.log(results);
+            return handleNotFound(
+              res,
+              `Todo by id ${req.params.id} was not found`
+            ); // TODO change it to unauthorized later maybe
+          }
+
+          res
+            .status(HttpStatus.OK.code)
+            .send(
+              new Response(
+                HttpStatus.OK.code,
+                HttpStatus.OK.status,
+                `Todo updated`,
+                { id: req.params.id, userId: userId, ...req.body }
+              )
+            );
+        }
+      );
+    }
+  );
 };
 
 export const deleteTodo = (req, res) => {
