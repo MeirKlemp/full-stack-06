@@ -13,6 +13,56 @@ import {
 const databasePr = database.promise();
 
 // TODO: Block usernames that start with numbers.
+
+// Checks if given id is the id number or username.
+const isIdNumber = (id) => /^\d+$/.test(id);
+
+// Filters the user's fields according to the requester.
+const filterUserFields = (reqUserId, user) => {
+  if (reqUserId === user.id) {
+    return user;
+  }
+
+  return {
+    id: user.id,
+    username: user.username,
+    name: user.name,
+  };
+};
+
+export const getUser = async (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, fetching user...`);
+
+  try {
+    const isId = isIdNumber(req.params.id);
+    const results = await databasePr.query(
+      isId ? QUERY.SELECT_USER_BY_ID : QUERY.SELECT_USER_BY_USERNAME,
+      [req.params.id]
+    );
+
+    if (results[0].length === 0) {
+      const message =
+        `User by ${isId ? "id" : "username"} ` +
+        `${req.params.id} was not found`;
+      return handleNotFound(res, message);
+    }
+
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(
+          HttpStatus.OK.code,
+          HttpStatus.OK.status,
+          "User retrieved",
+          filterUserFields(res.locals.userId, results[0][0])
+        )
+      );
+  } catch (error) {
+    console.error("Error fetching user:", error.message);
+    return handleInternalError(res);
+  }
+};
+
 const userCreationSchema = Joi.object({
   name: Joi.string().min(1).required(),
   username: Joi.string().min(1).required(),
@@ -21,7 +71,7 @@ const userCreationSchema = Joi.object({
 });
 
 export const createUser = async (req, res) => {
-  console.log(`${req.method} ${req.originalUrl}, creating user`);
+  console.log(`${req.method} ${req.originalUrl}, creating user...`);
 
   const { error } = userCreationSchema.validate(req.body);
 

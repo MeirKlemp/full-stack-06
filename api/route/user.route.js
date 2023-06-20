@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  //  getUser,
+  getUser,
   createUser,
   //  deleteUser,
   //  updateUser,
@@ -14,6 +14,6 @@ userRoutes.post("/", createUser);
 
 userRoutes.use(authenticate);
 
-// userRoutes.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
+userRoutes.route("/:id").get(getUser); //.put(updateUser).delete(deleteUser);
 
 export default userRoutes;
