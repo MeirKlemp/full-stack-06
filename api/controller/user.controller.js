@@ -12,7 +12,7 @@ import {
 
 const databasePr = database.promise();
 
-// TODO: Block usernames that start with numbers.
+const usernamePattern = /^[^0-9].*$/;
 
 // Checks if given id is the id number or username.
 const isIdNumber = (id) => /^\d+$/.test(id);
@@ -64,10 +64,10 @@ export const getUser = async (req, res) => {
 };
 
 const userCreationSchema = Joi.object({
-  name: Joi.string().min(1).required(),
-  username: Joi.string().min(1).required(),
-  email: Joi.string().min(1).required(),
-  password: Joi.string().min(4).required(),
+  name: Joi.string().min(1).max(255).required(),
+  username: Joi.string().pattern(usernamePattern).min(1).max(255).required(),
+  email: Joi.string().email().max(255).required(),
+  password: Joi.string().min(4).max(255).required(),
 });
 
 export const createUser = async (req, res) => {
@@ -126,7 +126,7 @@ export const createUser = async (req, res) => {
           new Response(
             HttpStatus.CREATED.code,
             HttpStatus.CREATED.status,
-            `User created`,
+            "User created",
             { user }
           )
         );
@@ -145,7 +145,7 @@ export const createUser = async (req, res) => {
   }
 };
 
-export const deleteUser = async (req, res) => {
+export const deleteUserSelf = async (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, deleting user...`);
 
   try {
@@ -161,6 +161,74 @@ export const deleteUser = async (req, res) => {
       );
   } catch (error) {
     console.error("Error fetching user:", error.message);
+    return handleInternalError(res);
+  }
+};
+
+const userUpdateSchema = Joi.object({
+  name: Joi.string().min(1).max(255),
+  username: Joi.string().pattern(usernamePattern).min(1).max(255),
+  email: Joi.string().email().max(255),
+  newPassword: Joi.string().min(4).max(255),
+  oldPassword: Joi.string().min(4).max(255),
+})
+  .and("newPassword", "oldPassword")
+  .min(1);
+
+export const updateUserSelf = async (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, updating user...`);
+
+  const { error } = userUpdateSchema.validate(req.body);
+
+  if (error) {
+    return handleBadRequest(res, error.details[0].message);
+  }
+
+  try {
+    const { userId } = res.locals;
+    const { name, username, email, newPassword, oldPassword } = req.body;
+
+    const userResult = await databasePr.query(QUERY.SELECT_USER_BY_ID, [
+      userId,
+    ]);
+
+    const user = {
+      id: userId,
+      name: name || userResult[0][0].name,
+      username: username || userResult[0][0].username,
+      email: email || userResult[0][0].email,
+    };
+
+    if (name || username || email) {
+      await databasePr.query(QUERY.UPDATE_USER, [
+        user.name,
+        user.username,
+        user.email,
+        user.id,
+      ]);
+    }
+
+    if (newPassword) {
+      const passwordUpdate = await databasePr.query(QUERY.UPDATE_PASSWORD, [
+        newPassword,
+        userId,
+        oldPassword,
+      ]);
+
+      if (passwordUpdate[0].affectedRows === 0) {
+        return handleBadRequest(res, "Wrong password");
+      }
+    }
+
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(HttpStatus.OK.code, HttpStatus.OK.status, "User updated", {
+          user,
+        })
+      );
+  } catch (error) {
+    console.error("Error creating user:", error.message);
     return handleInternalError(res);
   }
 };

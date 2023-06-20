@@ -2,8 +2,8 @@ import express from "express";
 import {
   getUser,
   createUser,
-  deleteUser,
-  //  updateUser,
+  deleteUserSelf,
+  updateUserSelf,
 } from "../controller/user.controller.js";
 
 import { authenticate } from "../controller/apikey.controller.js";
@@ -14,7 +14,7 @@ userRoutes.post("/", createUser);
 
 userRoutes.use(authenticate);
 
-userRoutes.route("/:id").get(getUser); //.put(updateUser);
-userRoutes.delete("/", deleteUser);
+userRoutes.get("/", getUser);
+userRoutes.route("/").delete(deleteUserSelf).put(updateUserSelf);
 
 export default userRoutes;
