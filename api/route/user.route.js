@@ -2,7 +2,7 @@ import express from "express";
 import {
   getUser,
   createUser,
-  //  deleteUser,
+  deleteUser,
   //  updateUser,
 } from "../controller/user.controller.js";
 
@@ -14,6 +14,7 @@ userRoutes.post("/", createUser);
 
 userRoutes.use(authenticate);
 
-userRoutes.route("/:id").get(getUser); //.put(updateUser).delete(deleteUser);
+userRoutes.route("/:id").get(getUser); //.put(updateUser);
+userRoutes.delete("/", deleteUser);
 
 export default userRoutes;

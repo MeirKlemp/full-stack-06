@@ -144,3 +144,23 @@ export const createUser = async (req, res) => {
     return handleInternalError(res);
   }
 };
+
+export const deleteUser = async (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, deleting user...`);
+
+  try {
+    // TODO: Create a sql procedure for this.
+    await databasePr.query(QUERY.DELETE_APIKEYS, [res.locals.userId]);
+    await databasePr.query(QUERY.DELETE_PASSWORD, [res.locals.userId]);
+    await databasePr.query(QUERY.DELETE_USER, [res.locals.userId]);
+
+    res
+      .status(HttpStatus.OK.code)
+      .send(
+        new Response(HttpStatus.OK.code, HttpStatus.OK.status, "User deleted")
+      );
+  } catch (error) {
+    console.error("Error fetching user:", error.message);
+    return handleInternalError(res);
+  }
+};

@@ -9,11 +9,11 @@ const QUERY = {
     "UPDATE Users SET name = ?, username = ?, email = ? WHERE id = ?",
   UPDATE_USER_BY_USERNAME:
     "UPDATE Users SET name = ?, username = ?, email = ? WHERE username = ?",
-  DELETE_USER_BY_ID: "DELETE FROM Users WHERE id = ?",
-  DELETE_USER_BY_USERNAME: "DELETE FROM Users WHERE username = ?",
+  DELETE_USER: "DELETE FROM Users WHERE id = ?",
   CREATE_PASSWORD: "INSERT INTO Passwords(userId, password) VALUES (?, ?)",
   UPDATE_PASSWORD: "UPDATE Passwords SET password = ? WHERE userId = ?",
   DELETE_PASSWORD: "DELETE FROM Passwords WHERE userId = ?",
+  DELETE_APIKEYS: "DELETE FROM ApiKeys WHERE userId = ?",
 };
 
 export default QUERY;
