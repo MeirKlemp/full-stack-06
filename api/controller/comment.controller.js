@@ -5,18 +5,11 @@ import Response from "../util/response.js";
 import HttpStatus from "../util/http-status.js";
 import QUERY from "../query/comment.query.js";
 import {
-  handleUnauthorized,
   handleInternalError,
   handleBadRequest,
   handleNotFound,
 } from "../util/handles.js";
 import generateQuery from "../query/queryUtils.js";
-
-const isUserVerified = () => {
-  // Return true for now, replace with actual verification logic later
-  // Probably need to get cookie apiKey as parameter
-  return true;
-};
 
 // Expecting to get object of [userId, postId, body]
 const commentSchema = Joi.object({
@@ -75,7 +68,7 @@ export const createComment = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, creating comment`);
 
   // Validate the request body against the defined schema
-  const { error, value } = commentSchema.validate(req.body);
+  const { error } = commentSchema.validate(req.body);
 
   if (error) {
     return handleBadRequest(res, error.details[0].message);

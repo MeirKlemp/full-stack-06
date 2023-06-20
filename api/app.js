@@ -5,7 +5,8 @@ import database from "./config/mysql.config.js";
 import apikeyRoutes from "./route/apikey.route.js";
 import userRoutes from "./route/user.route.js";
 import postRoutes from "./route/post.route.js";
-import commentRoutes from "./route/comments.route.js";
+import commentRoutes from "./route/comment.route.js"
+import todoRoutes from "./route/todo.route.js"
 
 const PORT = process.env.PORT || 2999;
 const app = express();
@@ -15,6 +16,7 @@ app.use("/apikeys", apikeyRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
+app.use("/todos", todoRoutes);
 
 app.get("/", (req, res) =>
   database.query("SELECT * FROM Passwords", function (err, results) {
