@@ -5,6 +5,7 @@ const HttpStatus = {
   BAD_REQUEST: { code: 400, status: "BAD_REQUEST" },
   UNAUTHORIZED: { code: 401, status: "UNAUTHORIZED" },
   NOT_FOUND: { code: 404, status: "NOT_FOUND" },
+  CONFLICT: { code: 409, status: "CONFLICT" },
   INTERNAL_SERVER_ERROR: { code: 500, status: "INTERNAL_SERVER_ERROR" },
 };
 
