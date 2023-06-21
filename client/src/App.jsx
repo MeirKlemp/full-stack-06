@@ -13,34 +13,29 @@ import NotFound from "./Pages/NotFound/NotFound";
 import Login from "./Pages/Login/Login";
 
 function App() {
-  const [user, setUser] = useState(localStorage.getItem("User"));
-  const [apiKey, setApiKey] = useState(localStorage.getItem("ApiKey"));
+  const [userId, setUserId] = useState(() => localStorage.getItem("UserId"));
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem("ApiKey"));
   const navigate = useNavigate();
 
-  useEffect(() => {
-    localStorage.setItem("ApiKey", JSON.stringify(apiKey));
-  }, [apiKey]);
-  
-  useEffect(() => {
-    localStorage.setItem("User", JSON.stringify(user));
-  }, [user]);
-
-  function handleLogin(username, newApiKey) {
+  function handleLogin(newUserId, newApiKey) {
+    setUserId(newUserId);
+    localStorage.setItem("UserId", newUserId);
     setApiKey(newApiKey);
-
+    localStorage.setItem("ApiKey", newApiKey);
     navigate("/");
   }
 
   function handleLogout() {
-    setUser(null);
+    setUserId(null);
+    setApiKey(null);
     localStorage.clear();
     navigate("/Login");
   }
 
   return (
     <>
-      {user && <TopNav onLogout={handleLogout} />}
-      {user ? (
+      {userId && <TopNav onLogout={handleLogout} />}
+      {userId ? (
         <Routes>
           <Route path="/" element={<Navigate to="/Info" />} />
           <Route path="/Info" element={<Info />} />
