@@ -41,6 +41,8 @@ export const authenticate = (req, res, next) => {
 };
 
 export const createApiKey = (req, res) => {
+  console.log(`${req.method} ${req.originalUrl}, creating apikey...`);
+
   const { error, value } = loginScheme.validate(req.body);
   if (error) {
     return handleBadRequest(res, error.details[0].message);

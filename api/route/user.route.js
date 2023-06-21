@@ -14,7 +14,7 @@ userRoutes.post("/", createUser);
 
 userRoutes.use(authenticate);
 
-userRoutes.get("/", getUser);
+userRoutes.get("/:id", getUser);
 userRoutes.route("/").delete(deleteUserSelf).put(updateUserSelf);
 
 export default userRoutes;
