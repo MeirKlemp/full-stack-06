@@ -1,16 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import ObjectAsList from "../../Components/ObjectDisplay/ObjectDisplay";
+import { UserInfoContext } from "../../App";
+import apiFetch from "../../api"
 
 export function Info() {
+  console.log(useContext(UserInfoContext));
+  const { userId, apiKey } = useContext(UserInfoContext);
+  console.log(userId);
+  console.log(apiKey);
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userID = JSON.parse(localStorage.getItem("User")).id;
+
+
+  async function fetchData() {
+    try {
+      const response = await apiFetch(`users/${userId}`, "GET", apiKey);
+      const newUserData = response.data;
+      setUserData(newUserData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/users?id=${userID}`)
-      .then((response) => response.json())
-      .then((data) => setUserData(data[0]));
-      setLoading(false);
+    fetchData();
   }, []);
 
   return (
