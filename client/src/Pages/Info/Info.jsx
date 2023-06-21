@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-import ObjectAsList from "../../Components/ObjectDisplay/ObjectDisplay";
 import { UserInfoContext } from "../../App";
 import apiFetch from "../../api"
 import UserDisplay from "../../Components/Users/UserDisplay/UserDisplay";
