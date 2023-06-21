@@ -14,11 +14,20 @@ import Login from "./Pages/Login/Login";
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem("User"));
+  const [apiKey, setApiKey] = useState(localStorage.getItem("ApiKey"));
   const navigate = useNavigate();
 
-  function handleLogin(username) {
-    setUser(username);
-    localStorage.setItem("User", JSON.stringify(username));
+  useEffect(() => {
+    localStorage.setItem("ApiKey", JSON.stringify(apiKey));
+  }, [apiKey]);
+  
+  useEffect(() => {
+    localStorage.setItem("User", JSON.stringify(user));
+  }, [user]);
+
+  function handleLogin(username, newApiKey) {
+    setApiKey(newApiKey);
+
     navigate("/");
   }
 
