@@ -33,8 +33,9 @@ export function Info() {
 
   async function fetchData() {
     try {
-      const userData = await authorizedFetch(`users/${userId}`, "GET");
-      setUserData(userData);
+      const response = await authorizedFetch(`users/${userId}`, "GET");
+      const newUserData = response.data;
+      setUserData(newUserData);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching user:", error);
