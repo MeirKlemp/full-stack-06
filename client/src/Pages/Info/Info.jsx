@@ -4,13 +4,9 @@ import apiFetch from "../../api"
 import UserDisplay from "../../Components/Users/UserDisplay/UserDisplay";
 
 export function Info() {
-  console.log(useContext(UserInfoContext));
   const { userId, apiKey } = useContext(UserInfoContext);
-  console.log(userId);
-  console.log(apiKey);
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
-
 
   async function fetchData() {
     try {
