@@ -106,3 +106,29 @@ INSERT INTO Todos (userId, title, completed)
     SELECT id, 'Master SQL subqueries and their various use cases' AS title, 0 AS completed FROM Users;
 INSERT INTO Todos (userId, title, completed)
     SELECT id, 'Build a RESTful API using SQL and a backend framework' AS title, 0 AS completed FROM Users;
+
+-- Creating Albums for each user
+INSERT INTO Albums (userId, title)
+SELECT u.id, CONCAT('Cat Album Number ', a.albumNum) AS title
+FROM Users u
+CROSS JOIN (
+    SELECT ROW_NUMBER() OVER (ORDER BY t) AS albumNum
+    FROM (
+        SELECT 1 AS t UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+    ) tmp
+) a
+ORDER BY u.id, a.albumNum;
+
+-- Creating Photos for each album
+INSERT INTO Photos (albumId, title, url, thumbnailUrl)
+SELECT a.id, CONCAT('Photo ', p.photoNum) AS title, CONCAT('https://placekitten.com/500/500?image=', p.photoNum) AS url, CONCAT('https://placekitten.com/500/500?image=', p.photoNum) AS thumbnailUrl
+FROM Albums a
+CROSS JOIN (
+    SELECT ROW_NUMBER() OVER (ORDER BY t) AS photoNum
+    FROM (
+        SELECT 1 AS t UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL
+        SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
+        SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16
+    ) tmp
+) p
+ORDER BY a.id, p.photoNum;
