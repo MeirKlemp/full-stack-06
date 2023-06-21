@@ -23,32 +23,6 @@ function Login({ onLogin }) {
         const responseData = await response.json(); // Parse the response body as JSON
         const apiKey = responseData.data.apiKey; // Retrieve the API key
         const userId = responseData.data.userId; // Retrieve the user
-
-        /*// Construct the URL with the username parameter
-        const url = `http://localhost:2999/users/${username}`;
-
-        try {
-          const userResponse = await fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization: `apikey ${apiKey}`,
-            },
-          });
-
-          if (userResponse.ok) {
-            const userJson = await userResponse.json();
-            console.log("User data:", userJson.data);
-
-            // Navigate to the desired location
-          } else {
-            console.error("Error fetching user:", userResponse.statusText);
-            // Handle the error
-          }
-        } catch (error) {
-          console.error("Error fetching user:", error);
-          // Handle the error
-        }            */
-
         alert("Login successful");
         onLogin(userId, apiKey);
       } else {
