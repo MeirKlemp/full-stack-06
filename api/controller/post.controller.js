@@ -180,31 +180,39 @@ export const deletePost = (req, res) => {
   console.log(`${req.method} ${req.originalUrl}, deleting post`);
 
   const { userId } = res.locals;
+  const postId = req.params.id;
 
-  database.query(
-    QUERY.DELETE_POST,
-    [req.params.id, userId],
-    (error, results) => {
-      if (error) {
-        console.error("Error deleting post:", error.message);
-        return handleInternalError(res, error);
-      }
-
-      if (results.affectedRows === 0) {
-        return handleNotFound(res, `Post by id ${req.params.id} was not found`);
-        // Or unauthorized
-      }
-
-      res
-        .status(HttpStatus.OK.code)
-        .send(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-            `Post deleted`,
-            results[0]
-          )
-        );
+  database.query(QUERY.DELETE_COMMENTS_OF_POST, [postId], (commentError) => {
+    if (commentError) {
+      console.error("Error deleting comments:", commentError.message);
+      return handleInternalError(res, commentError);
     }
-  );
+
+    database.query(
+      QUERY.DELETE_POST,
+      [postId, userId],
+      (postError, results) => {
+        if (postError) {
+          console.error("Error deleting post:", postError.message);
+          return handleInternalError(res, postError);
+        }
+
+        if (results.affectedRows === 0) {
+          return handleNotFound(res, `Post by id ${postId} was not found`);
+          // Or unauthorized
+        }
+
+        res
+          .status(HttpStatus.OK.code)
+          .send(
+            new Response(
+              HttpStatus.OK.code,
+              HttpStatus.OK.status,
+              `Post deleted`,
+              results[0]
+            )
+          );
+      }
+    );
+  });
 };
