@@ -11,7 +11,6 @@ import {
 } from "../util/handles.js";
 import generateQuery from "../query/queryUtils.js";
 
-
 // Expecting to get object of [userId, title, body]
 const postSchema = Joi.object({
   title: Joi.string().min(1).required(),
@@ -41,17 +40,6 @@ export const getPosts = (req, res) => {
       return handleInternalError(res);
     }
 
-    if (!results || results.length === 0) {
-      return res
-        .status(HttpStatus.OK.code)
-        .send(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-            "No posts found"
-          )
-        );
-    }
     res
       .status(HttpStatus.OK.code)
       .send(

@@ -36,17 +36,6 @@ export const getTodos = (req, res) => {
       return handleInternalError(res);
     }
 
-    if (!results || results.length === 0) {
-      return res
-        .status(HttpStatus.OK.code)
-        .send(
-          new Response(
-            HttpStatus.OK.code,
-            HttpStatus.OK.status,
-            "No todos found"
-          )
-        );
-    }
     res
       .status(HttpStatus.OK.code)
       .send(
