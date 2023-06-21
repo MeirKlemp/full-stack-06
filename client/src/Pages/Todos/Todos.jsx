@@ -1,39 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { NewTodoForm } from "../../Components/ToDo/NewTodoForm/NewTodoForm.jsx";
 import "./TodosStyle.css";
 import { TodoList } from "../../Components/ToDo/TodoList/TodoList.jsx";
 import ComboBoxSort from "../../Components/ToDo/ComboBoxSort/ComboBoxSort.jsx";
+import { UserInfoContext } from "../../App";
+import apiFetch from "../../api";
 
 export function Todos() {
-  const [todos, setTodos] = useState(() => {
-    const localValue = localStorage.getItem("Todos");
-    if (localValue == null) return [];
-
-    return JSON.parse(localValue);
-  });
+  const { userId, apiKey } = useContext(UserInfoContext);
+  const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    const userID = JSON.parse(localStorage.getItem("User")).id;
-    if (todos.length == 0) {
-      // There are no Todos in localStorage
-      fetch(`https://jsonplaceholder.typicode.com/todos?userId=${userID}`)
-        .then((response) => response.json())
-        .then((data) => setTodos(data));
-    }
+    apiFetch(`todos?userId=${userId}`, "GET", apiKey).then((data) =>
+      setTodos(data.data.todos)
+    );
   }, []);
 
-  useEffect(() => {
-    console.log("Todos has changed");
-    localStorage.setItem("Todos", JSON.stringify(todos));
-  }, [todos]);
-
   function addTodo(title) {
-    setTodos((currentTodos) => {
-      return [
-        { id: crypto.randomUUID(), title, completed: false },
-        ...currentTodos,
-      ];
-    });
+    apiFetch("todos", "POST", apiKey, {
+      title,
+      completed: 0,
+    })
+      .then((response) => {
+        setTodos((currentTodos) => [...currentTodos, response.data.todo]);
+      })
+      .catch((err) => alert("Couldn't create a new Todo... Please try again."));
   }
 
   // function sortById() that sorts the todos by id
@@ -72,19 +63,29 @@ export function Todos() {
     });
   }
 
-  function toggleTodo(id, completed) {
-    setTodos((currentTodos) => {
-      return currentTodos.map((todo) => {
-        if (todo.id === id) {
-          return { ...todo, completed };
-        }
+  function toggleTodo(todo) {
+    apiFetch(`todos/${todo.id}`, "PUT", apiKey, {
+      title: todo.title,
+      completed: todo.completed,
+    }).catch((err) =>
+      alert("Couldn't update the Todo... Please refresh the page.")
+    );
 
-        return todo;
+    setTodos((currentTodos) => {
+      return currentTodos.map((t) => {
+        if (t.id === todo.id) {
+          return todo;
+        }
+        return t;
       });
     });
   }
 
   function deleteTodo(id) {
+    apiFetch(`todos/${id}`, "DELETE", apiKey).catch((err) =>
+      alert("Couldn't delete the Todo... Please refresh the page.")
+    );
+
     setTodos((currentTodos) => {
       return currentTodos.filter((todo) => todo.id !== id);
     });
