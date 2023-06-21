@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import Response from "./util/response.js";
 import HttpStatus from "./util/http-status.js";
 import database from "./config/mysql.config.js";
@@ -13,6 +14,7 @@ import photoRoutes from "./route/photo.route.js";
 const PORT = process.env.PORT || 2999;
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.use("/apikeys", apikeyRoutes);
 app.use("/users", userRoutes);

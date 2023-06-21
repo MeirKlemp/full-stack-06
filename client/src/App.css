@@ -1,0 +1,13 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+main {
+  background: #333;
+  color: hsl(200, 100%, 90%);
+  padding: 1rem;
+  margin: 20px;
+  width: 600px;
+}

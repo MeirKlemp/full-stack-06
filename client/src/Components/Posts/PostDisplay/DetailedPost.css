@@ -1,0 +1,48 @@
+/* CSS for post display component */
+
+.post {
+    background-color: #f4f4f4;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.post-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.post-content {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.post-meta {
+    font-size: 14px;
+    color: #888;
+    margin-top: 8px;
+}
+
+.post-meta span {
+    margin-right: 8px;
+}
+
+.post-actions {
+    margin-top: 16px;
+}
+
+.post-actions button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.post-actions button:hover {
+    background-color: #45a049;
+}
+

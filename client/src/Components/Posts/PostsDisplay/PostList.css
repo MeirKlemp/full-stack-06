@@ -1,0 +1,22 @@
+.post {
+  display: grid;
+  grid-template-rows: auto 1fr auto; /* Adjust the rows as needed */
+  max-width: 700px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  align-items: center;
+}
+
+.post:hover {
+  transform: translateY(-5px);
+}
+
+.post-text {
+  color: black;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
