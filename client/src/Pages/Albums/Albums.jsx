@@ -1,14 +1,24 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AlbumList from "../../Components/Albums/AlbumList";
+import { UserInfoContext } from "../../App";
+import apiFetch from "../../api";
 
 function Albums() {
+  const { apiKey } = useContext(UserInfoContext);
   const [albums, setAlbums] = useState([]);
 
+  async function fetchData() {
+    try {
+      const response = await apiFetch(`albums`, "GET", apiKey);
+      const newAlbumData = response.data;
+      setAlbums(newAlbumData.albums);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }
+
   useEffect(() => {
-    const userID = JSON.parse(localStorage.getItem("User")).id;
-    fetch(`https://jsonplaceholder.typicode.com/albums?userId=${userID}`)
-      .then((response) => response.json())
-      .then((data) => setAlbums(data));
+    fetchData();
   }, []);
 
   return (
