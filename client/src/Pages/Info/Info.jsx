@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import ObjectAsList from "../../Components/ObjectDisplay/ObjectDisplay";
 import { UserInfoContext } from "../../App";
 import apiFetch from "../../api"
+import UserDisplay from "../../Components/Users/UserDisplay/UserDisplay";
 
 export function Info() {
   console.log(useContext(UserInfoContext));
@@ -36,7 +37,7 @@ export function Info() {
         <div>
           <h2>Welcome back, {userData.name}</h2>
           <div style={{ textAlign: "left" }}>
-            <ObjectAsList object={userData}></ObjectAsList>
+            <UserDisplay user={userData}></UserDisplay>
           </div>
         </div>
       )}
