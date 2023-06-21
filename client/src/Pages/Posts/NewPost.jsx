@@ -1,20 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router";
+import { UserInfoContext } from "../../App";
+import apiFetch from "../../api";
 
 export default function NewPostForm() {
+  const { userId, apiKey } = useContext(UserInfoContext);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
-
-  const [posts, setPosts] = useState(() => {
-    const localValue = localStorage.getItem("Posts");
-    if (localValue == null) return [];
-
-    return JSON.parse(localValue);
-  });
-
-  useEffect(() => {
-    console.log("Posts has changed");
-    localStorage.setItem("Posts", JSON.stringify(posts));
-  }, [posts]);
+  const navigate = useNavigate();
 
   const handleTitleChange = (e) => {
     setTitle(e.target.value);
@@ -31,22 +24,16 @@ export default function NewPostForm() {
   }
 
   function addPost(userId, title, body) {
-    setPosts((currentPosts) => {
-      return [
-        {
-          userId: userId,
-          id: generateUniqueId(),
-          title: title,
-          body: body,
-        },
-        ...currentPosts,
-      ];
-    });
+    apiFetch("posts", "POST", apiKey, {
+      title,
+      body,
+    })
+      .then((response) => navigate("/Posts"))
+      .catch((err) => alert("Couldn't create a new Post... Please try again."));
   }
 
   const handlePost = () => {
-    const userID = JSON.parse(localStorage.getItem("User")).id;
-    addPost(userID, title, body);
+    addPost(userId, title, body);
     alert("Your post have been published successfully!");
   };
 

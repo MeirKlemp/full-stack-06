@@ -1,28 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { PostList } from "../../Components/Posts/PostsDisplay/PostList.jsx";
 import { NavLink } from "react-router-dom";
+import { UserInfoContext } from "../../App";
+import apiFetch from "../../api";
 
 export function Posts() {
-  const [posts, setPosts] = useState(() => {
-    const localValue = localStorage.getItem("Posts");
-    if (localValue == null) return [];
-
-    return JSON.parse(localValue);
-  });
+  const { userId, apiKey } = useContext(UserInfoContext);
+  const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const userID = JSON.parse(localStorage.getItem("User")).id;
-    if (posts.length === 0) {
-      fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userID}`)
-        .then((response) => response.json())
-        .then((data) => setPosts(data));
-    }
+    apiFetch(`posts?userId=${userId}`, "GET", apiKey)
+      .then((response) => setPosts(response.data.posts))
+      .catch((err) => alert("Couldn't load posts... Please refresh the page"));
   }, []);
-
-  useEffect(() => {
-    console.log("Posts has changed");
-    localStorage.setItem("Posts", JSON.stringify(posts));
-  }, [posts]);
 
   return (
     <main>
