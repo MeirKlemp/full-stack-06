@@ -12,7 +12,8 @@ CREATE TABLE `Users`(
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
     `username` VARCHAR(255) NOT NULL,
-    `email` VARCHAR(255) NOT NULL
+    `email` VARCHAR(255) NOT NULL,
+    `address` VARCHAR(255) NULL
 );
 ALTER TABLE
     `Users` ADD UNIQUE `users_username_unique`(`username`);

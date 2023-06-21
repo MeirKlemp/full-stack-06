@@ -1,16 +1,16 @@
 -- Populating Users table
-INSERT INTO Users (name, username, email)
+INSERT INTO Users (name, username, email, address)
 VALUES
-    ('John Doe', 'johndoe', 'johndoe@example.com'),
-    ('Jane Smith', 'janesmith', 'janesmith@example.com'),
-    ('Michael Johnson', 'michaelj', 'michaelj@example.com'),
-    ('Sarah Wilson', 'sarahw', 'sarahw@example.com'),
-    ('David Brown', 'davidb', 'davidb@example.com'),
-    ('Emily Davis', 'emilyd', 'emilyd@example.com'),
-    ('James Lee', 'jamesl', 'jamesl@example.com'),
-    ('Jessica Thomas', 'jessicat', 'jessicat@example.com'),
-    ('Daniel Clark', 'danielc', 'danielc@example.com'),
-    ('Olivia Anderson', 'oliviaa', 'oliviaa@example.com');
+    ('John Doe', 'johndoe', 'johndoe@example.com', '123 Main St'),
+    ('Jane Smith', 'janesmith', 'janesmith@example.com', '456 Elm St'),
+    ('Michael Johnson', 'michaelj', 'michaelj@example.com', '789 Oak St'),
+    ('Sarah Wilson', 'sarahw', 'sarahw@example.com', '321 Maple Ave'),
+    ('David Brown', 'davidb', 'davidb@example.com', '987 Pine St'),
+    ('Emily Davis', 'emilyd', 'emilyd@example.com', '654 Cedar Rd'),
+    ('James Lee', 'jamesl', 'jamesl@example.com', '788 Pine St'),
+    ('Jessica Thomas', 'jessicat', 'jessicat@example.com', '457 Elm St'),
+    ('Daniel Clark', 'danielc', 'danielc@example.com', '124 Main St'),
+    ('Olivia Anderson', 'oliviaa', 'oliviaa@example.com', '988 Pine St');
 
 -- Populating Passwords table
 INSERT INTO Passwords (userId, password)
