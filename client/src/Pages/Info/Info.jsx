@@ -4,13 +4,46 @@ import ObjectAsList from "../../Components/ObjectDisplay/ObjectDisplay";
 export function Info() {
   const [userData, setUserData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userID = JSON.parse(localStorage.getItem("User")).id;
+  const userId = JSON.parse(localStorage.getItem("UserId"));
+
+  async function authorizedFetch(route, method, body) {
+    const apiKey = localStorage.getItem("ApiKey");
+    const url = `http://localhost:2999/${route}`;
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `apikey ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: body? JSON.stringify(body): undefined,
+      });
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      throw error;
+    }
+  }
+
+  async function fetchData() {
+    try {
+      const userData = await authorizedFetch(`users/${userId}`, "GET");
+      setUserData(userData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    fetch(`https://jsonplaceholder.typicode.com/users?id=${userID}`)
-      .then((response) => response.json())
-      .then((data) => setUserData(data[0]));
-      setLoading(false);
+    fetchData();
   }, []);
 
   return (

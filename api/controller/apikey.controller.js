@@ -84,7 +84,7 @@ export const createApiKey = (req, res) => {
                 HttpStatus.CREATED.code,
                 HttpStatus.CREATED.status,
                 "ApiKey created",
-                { apiKey, created_at }
+                { apiKey, userId, created_at }
               )
             );
         });

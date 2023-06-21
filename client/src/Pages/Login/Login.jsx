@@ -22,8 +22,9 @@ function Login({ onLogin }) {
         console.log("POST request successful");
         const responseData = await response.json(); // Parse the response body as JSON
         const apiKey = responseData.data.apiKey; // Retrieve the API key
+        const userId = responseData.data.userId; // Retrieve the user
 
-        // Construct the URL with the username parameter
+        /*// Construct the URL with the username parameter
         const url = `http://localhost:2999/users/${username}`;
 
         try {
@@ -36,11 +37,9 @@ function Login({ onLogin }) {
 
           if (userResponse.ok) {
             const userJson = await userResponse.json();
-            setUser(userJson.data);
             console.log("User data:", userJson.data);
 
             // Navigate to the desired location
-            navigate("/");
           } else {
             console.error("Error fetching user:", userResponse.statusText);
             // Handle the error
@@ -48,10 +47,10 @@ function Login({ onLogin }) {
         } catch (error) {
           console.error("Error fetching user:", error);
           // Handle the error
-        }
+        }            */
 
         alert("Login successful");
-        onLogin(username, apiKey);
+        onLogin(userId, apiKey);
       } else {
         console.error("POST request failed");
         alert("Password is incorrect");
