@@ -31,6 +31,7 @@ function Album() {
       const response = await apiFetch(url, "GET", apiKey);
       if (!response.data) {
         setAllPhotosFetched(true);
+        return;
       }
       const data = response.data.photos;
 
