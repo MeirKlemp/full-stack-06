@@ -27,6 +27,7 @@ const filterUserFields = (reqUserId, user) => {
     id: user.id,
     username: user.username,
     name: user.name,
+    email: user.email,
   };
 };
 
@@ -68,6 +69,7 @@ const userCreationSchema = Joi.object({
   username: Joi.string().pattern(usernamePattern).min(1).max(255).required(),
   email: Joi.string().email().max(255).required(),
   password: Joi.string().min(4).max(255).required(),
+  address: Joi.string().allow(null, "").max(255),
 });
 
 export const createUser = async (req, res) => {
@@ -80,7 +82,7 @@ export const createUser = async (req, res) => {
   }
 
   try {
-    const { name, username, email, password } = req.body;
+    const { name, username, email, address, password } = req.body;
 
     // Check if a user with the username already exists
     const conflictingUser = await databasePr.query(
@@ -104,6 +106,7 @@ export const createUser = async (req, res) => {
       name,
       username,
       email,
+      address,
     ]);
     const userId = userCreation[0].insertId;
 
@@ -112,6 +115,7 @@ export const createUser = async (req, res) => {
       name,
       username,
       email,
+      address: address || null,
     };
 
     try {
@@ -169,6 +173,7 @@ const userUpdateSchema = Joi.object({
   name: Joi.string().min(1).max(255),
   username: Joi.string().pattern(usernamePattern).min(1).max(255),
   email: Joi.string().email().max(255),
+  address: Joi.string().allow(null, "").max(255),
   newPassword: Joi.string().min(4).max(255),
   oldPassword: Joi.string().min(4).max(255),
 })
@@ -186,7 +191,8 @@ export const updateUserSelf = async (req, res) => {
 
   try {
     const { userId } = res.locals;
-    const { name, username, email, newPassword, oldPassword } = req.body;
+    const { name, username, email, address, newPassword, oldPassword } =
+      req.body;
 
     const userResult = await databasePr.query(QUERY.SELECT_USER_BY_ID, [
       userId,
@@ -197,13 +203,15 @@ export const updateUserSelf = async (req, res) => {
       name: name || userResult[0][0].name,
       username: username || userResult[0][0].username,
       email: email || userResult[0][0].email,
+      address: address !== undefined ? address : userResult[0][0].address,
     };
 
-    if (name || username || email) {
+    if (name || username || email || address !== undefined) {
       await databasePr.query(QUERY.UPDATE_USER, [
         user.name,
         user.username,
         user.email,
+        user.address,
         user.id,
       ]);
     }
@@ -220,13 +228,11 @@ export const updateUserSelf = async (req, res) => {
       }
     }
 
-    res
-      .status(HttpStatus.OK.code)
-      .send(
-        new Response(HttpStatus.OK.code, HttpStatus.OK.status, "User updated", {
-          user,
-        })
-      );
+    res.status(HttpStatus.OK.code).send(
+      new Response(HttpStatus.OK.code, HttpStatus.OK.status, "User updated", {
+        user,
+      })
+    );
   } catch (error) {
     console.error("Error creating user:", error.message);
     return handleInternalError(res);
