@@ -11,7 +11,6 @@ import {
 } from "../util/handles.js";
 import generateQuery from "../query/queryUtils.js";
 
-// Expecting to get object of [userId, postId, body]
 const todoSchema = Joi.object({
   title: Joi.string().min(1).required(),
   completed: Joi.number().integer().valid(0, 1).required(),
@@ -146,9 +145,6 @@ export const updateTodo = (req, res) => {
   if (error) {
     return handleBadRequest(res, error.details[0].message);
   }
-
-  console.log(req.params.id);
-  console.log(userId);
 
   database.query(
     QUERY.SELECT_TODO,
