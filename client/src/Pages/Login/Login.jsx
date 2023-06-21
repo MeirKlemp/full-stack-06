@@ -1,5 +1,6 @@
 import { useState } from "react";
-import "./LoginStyle.css";
+import "./Login.css";
+import { NavLink } from "react-router-dom";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
@@ -38,6 +39,7 @@ function Login({ onLogin }) {
   return (
     <main>
       <h1>Login</h1>
+      <NavLink to="/Register">Click here sign up</NavLink>
       <form className="login-form" onSubmit={handleSubmit}>
         <div>
           <label className="Login-Label" htmlFor="username">

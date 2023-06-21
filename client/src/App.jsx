@@ -11,6 +11,7 @@ import Albums from "./Pages/Albums/Albums";
 import Album from "./Pages/Albums/Album";
 import NotFound from "./Pages/NotFound/NotFound";
 import Login from "./Pages/Login/Login";
+import Register from "./Pages/Register/Register";
 
 export const UserInfoContext = createContext();
 
@@ -63,6 +64,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/Login" />} />
           <Route path="/Login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/Register" element={<Register />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       )}
