@@ -1,0 +1,28 @@
+.comment h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.comment p {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.comment-section {
+    margin-top: 10px;
+}
+
+.comment {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: left;
+    border-color: blue;
+}
+
+.comment:hover {
+    background-color: white;
+    color: black !important;
+    transition: background-color 0.3s ease;
+}
+
